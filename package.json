@@ -1,6 +1,6 @@
 {
-  "name": "ai-world-system",
-  "version": "1.0.0",
+  "name": "ai-builder-chat",
+  "version": "0.2.0",
   "type": "module",
   "main": "server.js",
   "scripts": {
