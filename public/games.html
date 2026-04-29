@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Games — AI World</title>
+<style>
+:root{--bg:#07070b;--panel:#101018;--panel2:#151520;--text:#f4f4ff;--muted:#9898aa;--line:#2a2a3a;--hot:#8dfcff;--violet:#b9a7ff;--bad:#ff6e8b;--green:#7affa0}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 10% 20%,rgba(141,252,255,.09),transparent 30%),radial-gradient(circle at 85% 80%,rgba(185,167,255,.11),transparent 32%),var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Navigation ── */
+nav{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:0 20px;height:52px;background:rgba(10,10,16,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.nav-brand{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:12px;white-space:nowrap}
+.nav-links{display:flex;gap:2px;flex:1}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:10px;transition:all .18s}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.nav-links a.active{color:var(--hot);background:rgba(141,252,255,.08);border:1px solid rgba(141,252,255,.18)}
+@media(max-width:600px){.nav-brand{font-size:13px} .nav-links a{padding:6px 10px;font-size:12px}}
+
+/* ── Layout ── */
+.hero{padding:52px 40px 32px;text-align:center}
+.hero h1{font-size:clamp(26px,5vw,44px);margin:0 0 10px;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:15px;max-width:480px;margin:0 auto}
+
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px;padding:0 40px 60px;max-width:1200px;margin:0 auto;width:100%}
+
+.game-card{background:var(--panel);border:1px solid var(--line);border-radius:22px;overflow:hidden;display:flex;flex-direction:column}
+.game-header{padding:22px 24px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px}
+.game-icon{font-size:32px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:var(--panel2);border-radius:14px;border:1px solid var(--line)}
+.game-meta h2{font-size:17px;margin:0 0 4px}
+.game-meta p{font-size:12px;color:var(--muted);margin:0}
+.game-body{padding:20px 24px;flex:1;display:flex;flex-direction:column;gap:14px}
+.game-footer{padding:14px 24px 20px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.score-label{font-size:12px;color:var(--muted)}
+.score-val{font-size:14px;font-weight:700;color:var(--hot)}
+
+/* ── Shared controls ── */
+.btn{border:0;border-radius:12px;background:linear-gradient(135deg,var(--hot),var(--violet));color:#050508;font-weight:800;padding:10px 22px;cursor:pointer;font-size:13px;font-family:inherit;transition:opacity .15s}
+.btn:hover{opacity:.88}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:9px 18px;cursor:pointer;font-size:13px;font-family:inherit;transition:all .18s}
+.btn-ghost:hover{border-color:rgba(141,252,255,.35);color:var(--hot)}
+.status{font-size:13px;color:var(--muted);text-align:center;min-height:20px}
+.status.win{color:var(--green)}
+.status.lose{color:var(--bad)}
+
+/* ── Memory Game ── */
+.memory-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mem-card{aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;transition:transform .15s,background .15s;user-select:none;position:relative;overflow:hidden}
+.mem-card .front,.mem-card .back{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;backface-visibility:hidden;transition:transform .3s}
+.mem-card .back{transform:rotateY(180deg)}
+.mem-card.flipped .front{transform:rotateY(180deg)}
+.mem-card.flipped .back{transform:rotateY(0)}
+.mem-card.flipped{background:rgba(141,252,255,.07);border-color:rgba(141,252,255,.25)}
+.mem-card.matched{background:rgba(122,255,160,.08);border-color:rgba(122,255,160,.3);cursor:default}
+.mem-card:not(.matched):not(.flipped):hover{transform:scale(1.05);border-color:rgba(185,167,255,.4)}
+
+/* ── Color Clicker ── */
+.color-seq{display:flex;gap:8px;flex-wrap:wrap;min-height:36px;align-items:center}
+.color-dot{width:28px;height:28px;border-radius:50%;border:2px solid transparent;flex-shrink:0}
+.color-dot.active{border-color:white;transform:scale(1.2)}
+.color-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.color-btn{height:52px;border-radius:12px;border:2px solid transparent;cursor:pointer;transition:transform .1s,border-color .15s;font-size:0}
+.color-btn:hover{transform:scale(1.06);border-color:rgba(255,255,255,.4)}
+.color-btn:active{transform:scale(.96)}
+.color-btn.wrong{border-color:var(--bad)!important;animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* ── Number Guess ── */
+.guess-input{width:100%;background:#090912;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px 14px;font:16px/1 ui-monospace,SFMono-Regular,Consolas,monospace;outline:none;text-align:center}
+.guess-input:focus{border-color:var(--hot);box-shadow:0 0 0 3px rgba(141,252,255,.08)}
+.guess-history{display:flex;flex-direction:column;gap:6px;max-height:140px;overflow-y:auto}
+.guess-row{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);border-radius:8px;padding:7px 12px;font-size:13px}
+.guess-hint{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+.hint-high{background:rgba(255,110,139,.15);color:var(--bad)}
+.hint-low{background:rgba(141,252,255,.1);color:var(--hot)}
+.hint-warm{background:rgba(255,200,80,.12);color:#ffc850}
+.thermometer{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:4px}
+.thermo-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--hot),var(--violet));transition:width .4s}
+
+@media(max-width:700px){.games-grid{padding:0 16px 40px;gap:18px} .hero{padding:36px 20px 24px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">✦ AI World</span>
+  <div class="nav-links">
+    <a href="index.html">Chat</a>
+    <a href="art.html">Art Gallery</a>
+    <a href="games.html" class="active">Games</a>
+    <a href="portfolio.html">Portfolio</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Mini Games</h1>
+  <p>Three quick games to sharpen your mind. Scores are saved locally — beat your best.</p>
+</div>
+
+<div class="games-grid">
+
+  <!-- ══════════════════════════════════════
+       GAME 1 — MEMORY MATCH
+  ══════════════════════════════════════ -->
+  <div class="game-card">
+    <div class="game-header">
+      <div class="game-icon">🃏</div>
+      <div class="game-meta">
+        <h2>Memory Match</h2>
+        <p>Flip cards to find all matching pairs</p>
+      </div>
+    </div>
+    <div class="game-body">
+      <div class="memory-grid" id="mem-grid"></div>
+      <div class="status" id="mem-status"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="memStart()" style="flex:1">New Game</button>
+      </div>
+    </div>
+    <div class="game-footer">
+      <div><div class="score-label">Moves</div><div class="score-val" id="mem-moves">0</div></div>
+      <div><div class="score-label">Best</div><div class="score-val" id="mem-best">—</div></div>
+      <div><div class="score-label">Pairs</div><div class="score-val" id="mem-pairs">0 / 6</div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       GAME 2 — COLOR CLICKER
+  ══════════════════════════════════════ -->
+  <div class="game-card">
+    <div class="game-header">
+      <div class="game-icon">🎨</div>
+      <div class="game-meta">
+        <h2>Color Clicker</h2>
+        <p>Repeat the color sequence as fast as you can</p>
+      </div>
+    </div>
+    <div class="game-body">
+      <div style="font-size:12px;color:var(--muted)">Sequence to repeat:</div>
+      <div class="color-seq" id="cc-seq"></div>
+      <div class="color-btns" id="cc-btns"></div>
+      <div class="status" id="cc-status">Press Start to play</div>
+    </div>
+    <div class="game-footer">
+      <div><div class="score-label">Round</div><div class="score-val" id="cc-round">—</div></div>
+      <div><div class="score-label">Best Round</div><div class="score-val" id="cc-best">—</div></div>
+      <div><button class="btn" onclick="ccStart()">Start</button></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       GAME 3 — NUMBER GUESS
+  ══════════════════════════════════════ -->
+  <div class="game-card">
+    <div class="game-header">
+      <div class="game-icon">🔢</div>
+      <div class="game-meta">
+        <h2>Number Guess</h2>
+        <p>Guess the secret number between 1 and 100</p>
+      </div>
+    </div>
+    <div class="game-body">
+      <div class="thermometer"><div class="thermo-fill" id="ng-thermo" style="width:0%"></div></div>
+      <input class="guess-input" id="ng-input" type="number" min="1" max="100" placeholder="Enter 1–100" />
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="ngGuess()" style="flex:1">Guess</button>
+        <button class="btn-ghost" onclick="ngStart()">Reset</button>
+      </div>
+      <div class="guess-history" id="ng-history"></div>
+      <div class="status" id="ng-status">Press Guess to start</div>
+    </div>
+    <div class="game-footer">
+      <div><div class="score-label">Attempts</div><div class="score-val" id="ng-attempts">0</div></div>
+      <div><div class="score-label">Best</div><div class="score-val" id="ng-best">—</div></div>
+      <div><div class="score-label">Range</div><div class="score-val" id="ng-range">1–100</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   MEMORY MATCH
+───────────────────────────────────────── */
+const MEM_EMOJIS = ['🌌','⚡','🔮','🌊','🎮','🧬'];
+let memCards=[], memFlipped=[], memLocked=false, memMoves=0, memMatched=0;
+
+function memStart(){
+  const pairs = [...MEM_EMOJIS,...MEM_EMOJIS];
+  pairs.sort(()=>Math.random()-.5);
+  memCards=pairs; memFlipped=[]; memLocked=false; memMoves=0; memMatched=0;
+  document.getElementById('mem-moves').textContent='0';
+  document.getElementById('mem-pairs').textContent='0 / 6';
+  document.getElementById('mem-status').textContent='';
+  document.getElementById('mem-status').className='status';
+  const grid=document.getElementById('mem-grid');
+  grid.innerHTML='';
+  pairs.forEach((emoji,i)=>{
+    const c=document.createElement('div');
+    c.className='mem-card';
+    c.dataset.index=i;
+    c.dataset.emoji=emoji;
+    c.innerHTML=`<div class="front">❓</div><div class="back">${emoji}</div>`;
+    c.addEventListener('click',()=>memFlip(c));
+    grid.appendChild(c);
+  });
+}
+
+function memFlip(card){
+  if(memLocked||card.classList.contains('flipped')||card.classList.contains('matched')) return;
+  card.classList.add('flipped');
+  memFlipped.push(card);
+  if(memFlipped.length===2){
+    memLocked=true; memMoves++;
+    document.getElementById('mem-moves').textContent=memMoves;
+    const [a,b]=memFlipped;
+    if(a.dataset.emoji===b.dataset.emoji){
+      a.classList.add('matched'); b.classList.add('matched');
+      memMatched++; memFlipped=[]; memLocked=false;
+      document.getElementById('mem-pairs').textContent=`${memMatched} / 6`;
+      if(memMatched===6){
+        const best=localStorage.getItem('memBest');
+        if(!best||memMoves<+best) localStorage.setItem('memBest',memMoves);
+        document.getElementById('mem-best').textContent=localStorage.getItem('memBest');
+        const s=document.getElementById('mem-status');
+        s.textContent=`🎉 Solved in ${memMoves} moves!`; s.className='status win';
+      }
+    } else {
+      setTimeout(()=>{
+        a.classList.remove('flipped'); b.classList.remove('flipped');
+        memFlipped=[]; memLocked=false;
+      },900);
+    }
+  }
+}
+
+/* ─────────────────────────────────────────
+   COLOR CLICKER
+───────────────────────────────────────── */
+const CC_COLORS=[
+  {name:'Cyan',   hex:'#8dfcff'},
+  {name:'Violet', hex:'#b9a7ff'},
+  {name:'Pink',   hex:'#ff6e8b'},
+  {name:'Green',  hex:'#7affa0'},
+  {name:'Orange', hex:'#ffb347'},
+  {name:'Blue',   hex:'#4da6ff'},
+];
+let ccSeq=[], ccStep=0, ccRound=0, ccActive=false, ccShowingSeq=false;
+
+function ccStart(){
+  ccSeq=[]; ccStep=0; ccRound=0; ccActive=true;
+  document.getElementById('cc-status').textContent='';
+  document.getElementById('cc-status').className='status';
+  renderCCBtns();
+  ccNextRound();
+}
+
+function renderCCBtns(){
+  const wrap=document.getElementById('cc-btns');
+  wrap.innerHTML='';
+  CC_COLORS.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='color-btn';
+    b.style.background=c.hex;
+    b.title=c.name;
+    b.addEventListener('click',()=>ccClick(i));
+    wrap.appendChild(b);
+  });
+}
+
+function ccNextRound(){
+  ccRound++;
+  document.getElementById('cc-round').textContent=ccRound;
+  ccSeq.push(Math.floor(Math.random()*CC_COLORS.length));
+  ccStep=0;
+  ccShowSeq();
+}
+
+function ccShowSeq(){
+  ccShowingSeq=true;
+  const dots=document.getElementById('cc-seq');
+  dots.innerHTML='';
+  ccSeq.forEach(i=>{
+    const d=document.createElement('div');
+    d.className='color-dot';
+    d.style.background=CC_COLORS[i].hex;
+    dots.appendChild(d);
+  });
+  const allDots=dots.querySelectorAll('.color-dot');
+  const btns=document.getElementById('cc-btns').querySelectorAll('.color-btn');
+  let idx=0;
+  const interval=setInterval(()=>{
+    if(idx>0) allDots[idx-1].classList.remove('active');
+    if(idx<ccSeq.length){
+      allDots[idx].classList.add('active');
+      btns[ccSeq[idx]].style.opacity='0.5';
+      setTimeout(()=>{ btns[ccSeq[idx]].style.opacity='1'; },350);
+      idx++;
+    } else {
+      clearInterval(interval);
+      ccShowingSeq=false;
+      document.getElementById('cc-status').textContent='Your turn! Repeat the sequence.';
+    }
+  },600);
+}
+
+function ccClick(i){
+  if(!ccActive||ccShowingSeq) return;
+  const btns=document.getElementById('cc-btns').querySelectorAll('.color-btn');
+  if(i===ccSeq[ccStep]){
+    btns[i].style.opacity='0.5';
+    setTimeout(()=>btns[i].style.opacity='1',200);
+    ccStep++;
+    if(ccStep===ccSeq.length){
+      document.getElementById('cc-status').textContent='✓ Correct! Next round…';
+      document.getElementById('cc-status').className='status win';
+      const best=localStorage.getItem('ccBest');
+      if(!best||ccRound>+best) localStorage.setItem('ccBest',ccRound);
+      document.getElementById('cc-best').textContent=localStorage.getItem('ccBest')||'—';
+      setTimeout(ccNextRound,900);
+    }
+  } else {
+    btns[i].classList.add('wrong');
+    setTimeout(()=>btns[i].classList.remove('wrong'),400);
+    const s=document.getElementById('cc-status');
+    s.textContent=`✗ Wrong! You reached round ${ccRound}. Press Start to retry.`;
+    s.className='status lose';
+    ccActive=false;
+    const best=localStorage.getItem('ccBest');
+    if(!best||ccRound>+best) localStorage.setItem('ccBest',ccRound);
+    document.getElementById('cc-best').textContent=localStorage.getItem('ccBest')||'—';
+  }
+}
+
+/* ─────────────────────────────────────────
+   NUMBER GUESS
+───────────────────────────────────────── */
+let ngSecret=0, ngAttempts=0, ngLow=1, ngHigh=100, ngDone=false;
+
+function ngStart(){
+  ngSecret=Math.floor(Math.random()*100)+1;
+  ngAttempts=0; ngLow=1; ngHigh=100; ngDone=false;
+  document.getElementById('ng-input').value='';
+  document.getElementById('ng-input').disabled=false;
+  document.getElementById('ng-history').innerHTML='';
+  document.getElementById('ng-attempts').textContent='0';
+  document.getElementById('ng-range').textContent='1–100';
+  document.getElementById('ng-thermo').style.width='0%';
+  const s=document.getElementById('ng-status');
+  s.textContent='I\'ve picked a number. Start guessing!';
+  s.className='status';
+}
+
+function ngGuess(){
+  if(ngDone) return;
+  if(!ngSecret) ngStart();
+  const val=parseInt(document.getElementById('ng-input').value);
+  if(isNaN(val)||val<1||val>100){
+    document.getElementById('ng-status').textContent='Enter a number between 1 and 100.';
+    return;
+  }
+  ngAttempts++;
+  document.getElementById('ng-attempts').textContent=ngAttempts;
+  document.getElementById('ng-input').value='';
+
+  const diff=Math.abs(val-ngSecret);
+  const warmth=Math.max(0,100-diff*2);
+  document.getElementById('ng-thermo').style.width=warmth+'%';
+
+  const hist=document.getElementById('ng-history');
+  const row=document.createElement('div');
+  row.className='guess-row';
+
+  let hintClass,hintText;
+  if(val===ngSecret){
+    hintClass='hint-warm'; hintText='✓ Correct!';
+  } else if(val>ngSecret){
+    hintClass='hint-high'; hintText='▼ Too high';
+    ngHigh=Math.min(ngHigh,val-1);
+  } else {
+    hintClass='hint-low'; hintText='▲ Too low';
+    ngLow=Math.max(ngLow,val+1);
+  }
+  document.getElementById('ng-range').textContent=`${ngLow}–${ngHigh}`;
+  row.innerHTML=`<span style="font-weight:700">${val}</span><span class="guess-hint ${hintClass}">${hintText}</span>`;
+  hist.prepend(row);
+
+  const s=document.getElementById('ng-status');
+  if(val===ngSecret){
+    ngDone=true;
+    document.getElementById('ng-input').disabled=true;
+    s.textContent=`🎉 Got it in ${ngAttempts} attempt${ngAttempts===1?'':'s'}!`;
+    s.className='status win';
+    const best=localStorage.getItem('ngBest');
+    if(!best||ngAttempts<+best) localStorage.setItem('ngBest',ngAttempts);
+    document.getElementById('ng-best').textContent=localStorage.getItem('ngBest');
+  } else {
+    const proximity=diff<=5?'🔥 Very hot!':diff<=15?'♨️ Warm':diff<=30?'🌡️ Cool':'❄️ Cold';
+    s.textContent=proximity;
+    s.className='status';
+  }
+}
+
+/* ── Init ── */
+document.getElementById('ng-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter') ngGuess();
+});
+document.getElementById('mem-best').textContent=localStorage.getItem('memBest')||'—';
+document.getElementById('cc-best').textContent=localStorage.getItem('ccBest')||'—';
+document.getElementById('ng-best').textContent=localStorage.getItem('ngBest')||'—';
+renderCCBtns();
+memStart();
+ngStart();
+</script>
+</body>
+</html>
