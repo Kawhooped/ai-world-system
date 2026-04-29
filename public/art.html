@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Art Gallery — AI World</title>
+<style>
+:root{--bg:#07070b;--panel:#101018;--panel2:#151520;--text:#f4f4ff;--muted:#9898aa;--line:#2a2a3a;--hot:#8dfcff;--violet:#b9a7ff;--bad:#ff6e8b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 20% 5%,rgba(141,252,255,.1),transparent 28%),radial-gradient(circle at 75% 85%,rgba(185,167,255,.12),transparent 32%),var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Navigation ── */
+nav{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:0 20px;height:52px;background:rgba(10,10,16,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.nav-brand{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:12px;white-space:nowrap}
+.nav-links{display:flex;gap:2px;flex:1}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:10px;transition:all .18s}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.nav-links a.active{color:var(--hot);background:rgba(141,252,255,.08);border:1px solid rgba(141,252,255,.18)}
+@media(max-width:600px){.nav-brand{font-size:13px} .nav-links a{padding:6px 10px;font-size:12px}}
+
+/* ── Hero ── */
+.hero{padding:60px 40px 40px;text-align:center}
+.hero h1{font-size:clamp(28px,5vw,48px);margin:0 0 12px;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);font-size:16px;max-width:520px;margin:0 auto;line-height:1.6}
+
+/* ── Filter bar ── */
+.filters{display:flex;justify-content:center;gap:8px;padding:0 40px 36px;flex-wrap:wrap}
+.filter-btn{background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 18px;font-size:13px;cursor:pointer;transition:all .18s;font-family:inherit}
+.filter-btn:hover{color:var(--text);border-color:rgba(141,252,255,.3)}
+.filter-btn.active{background:rgba(141,252,255,.1);color:var(--hot);border-color:rgba(141,252,255,.4)}
+
+/* ── Gallery grid ── */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px;padding:0 40px 60px;max-width:1400px;margin:0 auto;width:100%}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:transform .22s,border-color .22s,box-shadow .22s;cursor:pointer}
+.card:hover{transform:translateY(-6px);border-color:rgba(141,252,255,.3);box-shadow:0 16px 48px rgba(0,0,0,.5),0 0 0 1px rgba(141,252,255,.08)}
+.card-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--panel2)}
+.card-img-placeholder{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:64px;background:var(--panel2);position:relative;overflow:hidden}
+.card-img-placeholder::before{content:'';position:absolute;inset:0;background:var(--grad);opacity:.18}
+.card-body{padding:18px 20px 22px}
+.card-tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--hot);margin-bottom:8px}
+.card-title{font-size:17px;font-weight:700;margin:0 0 8px;color:var(--text)}
+.card-desc{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.card-year{font-size:12px;color:var(--muted)}
+.card-like{background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px;padding:5px 12px;cursor:pointer;transition:all .18s;font-family:inherit;display:flex;align-items:center;gap:5px}
+.card-like:hover,.card-like.liked{background:rgba(185,167,255,.12);border-color:rgba(185,167,255,.4);color:var(--violet)}
+
+/* ── Lightbox ── */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(8px)}
+.lightbox.open{display:flex}
+.lb-inner{background:var(--panel);border:1px solid var(--line);border-radius:24px;max-width:680px;width:100%;overflow:hidden;animation:lbIn .22s ease}
+@keyframes lbIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.lb-art{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;font-size:96px;background:var(--panel2)}
+.lb-body{padding:24px 28px 28px}
+.lb-tag{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--hot);margin-bottom:8px}
+.lb-title{font-size:22px;font-weight:800;margin:0 0 10px}
+.lb-desc{color:var(--muted);font-size:14px;line-height:1.6;margin:0 0 18px}
+.lb-close{background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:10px 22px;cursor:pointer;font-size:14px;font-family:inherit;transition:all .18s}
+.lb-close:hover{border-color:var(--hot);color:var(--hot)}
+
+@media(max-width:700px){.gallery{padding:0 16px 40px;gap:16px} .hero{padding:40px 20px 28px} .filters{padding:0 16px 24px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">✦ AI World</span>
+  <div class="nav-links">
+    <a href="index.html">Chat</a>
+    <a href="art.html" class="active">Art Gallery</a>
+    <a href="games.html">Games</a>
+    <a href="portfolio.html">Portfolio</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Art Gallery</h1>
+  <p>A curated collection of digital works — generative, abstract, and everything in between. Click any piece to explore it.</p>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="filterGallery('all',this)">All Works</button>
+  <button class="filter-btn" onclick="filterGallery('generative',this)">Generative</button>
+  <button class="filter-btn" onclick="filterGallery('abstract',this)">Abstract</button>
+  <button class="filter-btn" onclick="filterGallery('pixel',this)">Pixel Art</button>
+  <button class="filter-btn" onclick="filterGallery('concept',this)">Concept</button>
+</div>
+
+<div class="gallery" id="gallery"></div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lb-inner">
+    <div class="lb-art" id="lb-art"></div>
+    <div class="lb-body">
+      <div class="lb-tag" id="lb-tag"></div>
+      <h2 class="lb-title" id="lb-title"></h2>
+      <p class="lb-desc" id="lb-desc"></p>
+      <button class="lb-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕ Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const pieces = [
+  {
+    emoji:"🌌",grad:"linear-gradient(135deg,#0d1b4b,#1a0533,#0a2a3a)",
+    tag:"generative",title:"Void Bloom",year:"2024",
+    desc:"A procedurally generated nebula field where each star cluster follows a Fibonacci spiral. The deep blues and purples evoke the silence between galaxies.",
+    likes:42
+  },
+  {
+    emoji:"⚡",grad:"linear-gradient(135deg,#001a1a,#003333,#00ffcc22)",
+    tag:"abstract",title:"Neon Fracture",year:"2024",
+    desc:"High-voltage geometry — shattered planes of cyan light against absolute darkness. Inspired by the moment a circuit overloads.",
+    likes:38
+  },
+  {
+    emoji:"🔮",grad:"linear-gradient(135deg,#1a0040,#3d0080,#6600cc22)",
+    tag:"generative",title:"Crystal Mind",year:"2023",
+    desc:"A recursive crystal lattice grown from a single seed point. Each iteration adds complexity while preserving the original symmetry.",
+    likes:61
+  },
+  {
+    emoji:"🌊",grad:"linear-gradient(135deg,#001433,#002966,#0044aa22)",
+    tag:"abstract",title:"Deep Signal",year:"2024",
+    desc:"Waveform data from ocean buoys translated into visual frequency bands. The ocean speaks in sine waves — this is what it says.",
+    likes:29
+  },
+  {
+    emoji:"🎮",grad:"linear-gradient(135deg,#0d0d0d,#1a1a2e,#16213e)",
+    tag:"pixel",title:"Grid World 01",year:"2023",
+    desc:"An 8-bit landscape built one pixel at a time. Every tile is hand-placed. The world wraps — walk far enough east and you return from the west.",
+    likes:55
+  },
+  {
+    emoji:"🧬",grad:"linear-gradient(135deg,#001a0d,#003319,#00ff6622)",
+    tag:"concept",title:"Helix Protocol",year:"2024",
+    desc:"A conceptual diagram of a self-replicating data structure. Part biology, part computer science — a blueprint for something that doesn't exist yet.",
+    likes:33
+  },
+  {
+    emoji:"🔥",grad:"linear-gradient(135deg,#1a0500,#330a00,#ff440022)",
+    tag:"abstract",title:"Thermal Drift",year:"2023",
+    desc:"Heat map data from a server farm rendered as an abstract painting. The hottest cores glow amber; idle nodes fade to near-black.",
+    likes:47
+  },
+  {
+    emoji:"🌸",grad:"linear-gradient(135deg,#1a0020,#33003d,#cc00ff22)",
+    tag:"pixel",title:"Bloom.exe",year:"2024",
+    desc:"A pixel-art flower that grows differently every time you watch it. The growth algorithm uses a modified L-system with randomised branching angles.",
+    likes:72
+  }
+];
+
+let likedSet = new Set(JSON.parse(localStorage.getItem('liked')||'[]'));
+
+function saveLikes(){ localStorage.setItem('liked', JSON.stringify([...likedSet])); }
+
+function renderGallery(filter='all'){
+  const g = document.getElementById('gallery');
+  g.innerHTML = '';
+  pieces.forEach((p,i)=>{
+    if(filter !== 'all' && p.tag !== filter) return;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.index = i;
+    const isLiked = likedSet.has(i);
+    card.innerHTML = `
+      <div class="card-img-placeholder" style="--grad:${p.grad}">
+        <span style="filter:drop-shadow(0 0 18px rgba(255,255,255,.3))">${p.emoji}</span>
+        <div style="position:absolute;inset:0;background:${p.grad};opacity:.55;z-index:-1"></div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">${p.tag}</div>
+        <div class="card-title">${p.title}</div>
+        <p class="card-desc">${p.desc}</p>
+        <div class="card-footer">
+          <span class="card-year">${p.year}</span>
+          <button class="card-like ${isLiked?'liked':''}" onclick="toggleLike(event,${i},this)">
+            ${isLiked?'♥':'♡'} <span class="like-count">${p.likes + (isLiked?1:0)}</span>
+          </button>
+        </div>
+      </div>`;
+    card.addEventListener('click', e => {
+      if(e.target.closest('.card-like')) return;
+      openLightbox(i);
+    });
+    g.appendChild(card);
+  });
+}
+
+function toggleLike(e, i, btn){
+  e.stopPropagation();
+  const count = btn.querySelector('.like-count');
+  if(likedSet.has(i)){
+    likedSet.delete(i);
+    btn.classList.remove('liked');
+    btn.innerHTML = `♡ <span class="like-count">${pieces[i].likes}</span>`;
+  } else {
+    likedSet.add(i);
+    btn.classList.add('liked');
+    btn.innerHTML = `♥ <span class="like-count">${pieces[i].likes+1}</span>`;
+  }
+  saveLikes();
+}
+
+function filterGallery(tag, btn){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGallery(tag);
+}
+
+function openLightbox(i){
+  const p = pieces[i];
+  document.getElementById('lb-art').innerHTML = `
+    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${p.grad};font-size:96px">
+      <span style="filter:drop-shadow(0 0 24px rgba(255,255,255,.4))">${p.emoji}</span>
+    </div>`;
+  document.getElementById('lb-tag').textContent = p.tag;
+  document.getElementById('lb-title').textContent = p.title;
+  document.getElementById('lb-desc').textContent = p.desc;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox(e){
+  if(e.target === document.getElementById('lightbox'))
+    document.getElementById('lightbox').classList.remove('open');
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
+});
+
+renderGallery();
+</script>
+</body>
+</html>

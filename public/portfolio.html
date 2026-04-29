@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portfolio — AI World</title>
+<style>
+:root{--bg:#07070b;--panel:#101018;--panel2:#151520;--text:#f4f4ff;--muted:#9898aa;--line:#2a2a3a;--hot:#8dfcff;--violet:#b9a7ff;--bad:#ff6e8b;--green:#7affa0}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 5% 15%,rgba(141,252,255,.1),transparent 28%),radial-gradient(circle at 90% 80%,rgba(185,167,255,.12),transparent 32%),var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Navigation ── */
+nav{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:0 20px;height:52px;background:rgba(10,10,16,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.nav-brand{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:12px;white-space:nowrap}
+.nav-links{display:flex;gap:2px;flex:1}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:10px;transition:all .18s}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.nav-links a.active{color:var(--hot);background:rgba(141,252,255,.08);border:1px solid rgba(141,252,255,.18)}
+@media(max-width:600px){.nav-brand{font-size:13px} .nav-links a{padding:6px 10px;font-size:12px}}
+
+/* ── Hero / Bio ── */
+.hero{padding:64px 40px 48px;max-width:860px;margin:0 auto;width:100%}
+.avatar{width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,var(--hot),var(--violet));display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:24px;border:3px solid rgba(141,252,255,.25);box-shadow:0 0 32px rgba(141,252,255,.15)}
+.hero h1{font-size:clamp(28px,5vw,46px);margin:0 0 6px;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero .subtitle{font-size:16px;color:var(--hot);margin:0 0 20px;font-weight:600;letter-spacing:.02em}
+.hero .bio{font-size:15px;color:var(--muted);line-height:1.75;max-width:620px;margin:0}
+
+/* ── Stats ── */
+.stats-section{padding:0 40px 48px;max-width:860px;margin:0 auto;width:100%}
+.stats-section h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.stat-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;transition:border-color .2s,transform .2s}
+.stat-card:hover{border-color:rgba(141,252,255,.25);transform:translateY(-3px)}
+.stat-num{font-size:32px;font-weight:900;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.stat-label{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* ── Skills ── */
+.skills-section{padding:0 40px 48px;max-width:860px;margin:0 auto;width:100%}
+.skills-section h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.skills-grid{display:flex;flex-wrap:wrap;gap:8px}
+.skill-tag{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-size:13px;color:var(--text);transition:all .18s;cursor:default}
+.skill-tag:hover{border-color:rgba(141,252,255,.35);color:var(--hot);background:rgba(141,252,255,.06)}
+.skill-tag.hot{border-color:rgba(141,252,255,.3);color:var(--hot);background:rgba(141,252,255,.07)}
+.skill-tag.violet{border-color:rgba(185,167,255,.3);color:var(--violet);background:rgba(185,167,255,.07)}
+
+/* ── Featured sections ── */
+.featured-section{padding:0 40px 48px;max-width:860px;margin:0 auto;width:100%}
+.featured-section h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.featured-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:10px;transition:all .2s;position:relative;overflow:hidden}
+.featured-card::before{content:'';position:absolute;inset:0;background:var(--card-glow);opacity:0;transition:opacity .2s}
+.featured-card:hover{transform:translateY(-4px);border-color:rgba(141,252,255,.25);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.featured-card:hover::before{opacity:1}
+.fc-icon{font-size:28px}
+.fc-title{font-size:15px;font-weight:700;color:var(--text)}
+.fc-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.fc-arrow{font-size:12px;color:var(--hot);margin-top:auto;font-weight:700}
+
+/* ── Timeline ── */
+.timeline-section{padding:0 40px 64px;max-width:860px;margin:0 auto;width:100%}
+.timeline-section h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 20px}
+.timeline{display:flex;flex-direction:column;gap:0;position:relative}
+.timeline::before{content:'';position:absolute;left:15px;top:8px;bottom:8px;width:1px;background:var(--line)}
+.tl-item{display:flex;gap:20px;padding-bottom:28px;position:relative}
+.tl-dot{width:30px;height:30px;border-radius:50%;background:var(--panel2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;z-index:1;transition:border-color .2s}
+.tl-item:hover .tl-dot{border-color:var(--hot)}
+.tl-content{padding-top:4px}
+.tl-date{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px}
+.tl-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.tl-desc{font-size:13px;color:var(--muted);line-height:1.55}
+
+/* ── Contact strip ── */
+.contact-strip{background:var(--panel);border-top:1px solid var(--line);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:auto}
+.contact-strip p{color:var(--muted);font-size:14px;margin:0}
+.contact-links{display:flex;gap:10px;flex-wrap:wrap}
+.contact-link{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 18px;color:var(--text);text-decoration:none;font-size:13px;font-weight:500;transition:all .18s}
+.contact-link:hover{border-color:rgba(141,252,255,.35);color:var(--hot)}
+
+@media(max-width:700px){
+  .hero,.stats-section,.skills-section,.featured-section,.timeline-section{padding-left:20px;padding-right:20px}
+  .hero{padding-top:40px}
+  .contact-strip{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">✦ AI World</span>
+  <div class="nav-links">
+    <a href="index.html">Chat</a>
+    <a href="art.html">Art Gallery</a>
+    <a href="games.html">Games</a>
+    <a href="portfolio.html" class="active">Portfolio</a>
+  </div>
+</nav>
+
+<!-- Bio -->
+<div class="hero">
+  <div class="avatar">🤖</div>
+  <h1>AI World Builder</h1>
+  <div class="subtitle">Digital Artist · Systems Designer · Builder</div>
+  <p class="bio">
+    I build things at the intersection of code and creativity — generative art systems, interactive experiences, and AI-powered tools. This site is a living project: part portfolio, part playground, part control room. Everything here was designed to grow.
+  </p>
+</div>
+
+<!-- Stats -->
+<div class="stats-section">
+  <h2>By the Numbers</h2>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-artworks">8</div>
+      <div class="stat-label">Artworks Created</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-games">3</div>
+      <div class="stat-label">Mini Games Built</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-plays">—</div>
+      <div class="stat-label">Games Played</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-likes">—</div>
+      <div class="stat-label">Art Pieces Liked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Ideas in Queue</div>
+    </div>
+  </div>
+</div>
+
+<!-- Skills -->
+<div class="skills-section">
+  <h2>Skills & Tools</h2>
+  <div class="skills-grid">
+    <span class="skill-tag hot">JavaScript</span>
+    <span class="skill-tag hot">Node.js / Express</span>
+    <span class="skill-tag hot">HTML & CSS</span>
+    <span class="skill-tag violet">Generative Art</span>
+    <span class="skill-tag violet">AI / LLM Integration</span>
+    <span class="skill-tag violet">OpenAI API</span>
+    <span class="skill-tag">Systems Design</span>
+    <span class="skill-tag">UI / UX</span>
+    <span class="skill-tag">Game Design</span>
+    <span class="skill-tag">Creative Coding</span>
+    <span class="skill-tag">REST APIs</span>
+    <span class="skill-tag">Railway · Deployment</span>
+  </div>
+</div>
+
+<!-- Featured -->
+<div class="featured-section">
+  <h2>Explore the World</h2>
+  <div class="featured-grid">
+    <a href="index.html" class="featured-card" style="--card-glow:linear-gradient(135deg,rgba(141,252,255,.05),transparent)">
+      <div class="fc-icon">💬</div>
+      <div class="fc-title">AI Builder Chat</div>
+      <div class="fc-desc">The main control room. Talk to the builder AI to design systems, plan pages, and generate ideas.</div>
+      <div class="fc-arrow">Open Chat →</div>
+    </a>
+    <a href="art.html" class="featured-card" style="--card-glow:linear-gradient(135deg,rgba(185,167,255,.05),transparent)">
+      <div class="fc-icon">🎨</div>
+      <div class="fc-title">Art Gallery</div>
+      <div class="fc-desc">Eight original digital works spanning generative, abstract, pixel art, and concept categories.</div>
+      <div class="fc-arrow">View Gallery →</div>
+    </a>
+    <a href="games.html" class="featured-card" style="--card-glow:linear-gradient(135deg,rgba(122,255,160,.04),transparent)">
+      <div class="fc-icon">🎮</div>
+      <div class="fc-title">Mini Games</div>
+      <div class="fc-desc">Three playable games: Memory Match, Color Clicker, and Number Guess. Scores saved locally.</div>
+      <div class="fc-arrow">Play Games →</div>
+    </a>
+  </div>
+</div>
+
+<!-- Timeline -->
+<div class="timeline-section">
+  <h2>Build Log</h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">🚀</div>
+      <div class="tl-content">
+        <div class="tl-date">2024 — Now</div>
+        <div class="tl-title">AI World System — Multi-page Expansion</div>
+        <div class="tl-desc">Added Art Gallery, Games Hub, and Portfolio pages. Introduced site-wide navigation. Expanded from a single chat interface into a full multi-page experience.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">💬</div>
+      <div class="tl-content">
+        <div class="tl-date">2024 — v0.2</div>
+        <div class="tl-title">AI Builder Chat — First Deploy</div>
+        <div class="tl-desc">Launched the main control room: a chat interface powered by GPT-4o-mini with project context, quick prompts, and a clean dark-theme UI served by Express on Railway.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">⚡</div>
+      <div class="tl-content">
+        <div class="tl-date">2024 — v0.1</div>
+        <div class="tl-title">Project Kickoff</div>
+        <div class="tl-desc">Initial Express server scaffolded. Static file serving configured. Dark theme design system established with cyan and violet accent palette.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contact -->
+<div class="contact-strip">
+  <p>This world is always expanding. Check back often.</p>
+  <div class="contact-links">
+    <a href="index.html" class="contact-link">💬 Chat with AI</a>
+    <a href="art.html" class="contact-link">🎨 View Art</a>
+    <a href="games.html" class="contact-link">🎮 Play Games</a>
+  </div>
+</div>
+
+<script>
+/* Pull live stats from localStorage */
+function loadStats(){
+  // Likes count
+  const liked = JSON.parse(localStorage.getItem('liked')||'[]');
+  document.getElementById('stat-likes').textContent = liked.length || '0';
+
+  // Games played — count any best score recorded
+  let plays = 0;
+  if(localStorage.getItem('memBest')) plays++;
+  if(localStorage.getItem('ccBest')) plays++;
+  if(localStorage.getItem('ngBest')) plays++;
+  document.getElementById('stat-plays').textContent = plays || '0';
+}
+
+/* Animate stat numbers on scroll */
+function animateNum(el, target){
+  if(isNaN(target)) return;
+  let current=0;
+  const step=Math.ceil(target/30);
+  const timer=setInterval(()=>{
+    current=Math.min(current+step,target);
+    el.textContent=current;
+    if(current>=target) clearInterval(timer);
+  },40);
+}
+
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const num=parseInt(e.target.textContent);
+      if(!isNaN(num)) animateNum(e.target,num);
+      observer.unobserve(e.target);
+    }
+  });
+},{threshold:.5});
+
+document.querySelectorAll('.stat-num').forEach(el=>observer.observe(el));
+
+loadStats();
+</script>
+</body>
+</html>
