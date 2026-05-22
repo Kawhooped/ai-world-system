@@ -3,151 +3,212 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AI Builder Chat</title>
+<title>AI Workflow Studio</title>
+<meta name="description" content="Chain AI prompts into repeatable workflows. A builder's control room for designing AI-assisted systems — by Danny Aguiar." />
 <style>
 :root{--bg:#07070b;--panel:#101018;--panel2:#151520;--text:#f4f4ff;--muted:#9898aa;--line:#2a2a3a;--hot:#8dfcff;--violet:#b9a7ff;--bad:#ff6e8b}
-*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 15% 10%,rgba(141,252,255,.12),transparent 30%),radial-gradient(circle at 80% 90%,rgba(185,167,255,.1),transparent 35%),var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 15% 10%,rgba(141,252,255,.12),transparent 30%),radial-gradient(circle at 80% 90%,rgba(185,167,255,.1),transparent 35%),var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,sans-serif;min-height:100vh;line-height:1.55}
+a{color:inherit}
 
-/* ── Navigation ── */
-nav{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:0 20px;height:52px;background:rgba(10,10,16,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(12px);z-index:100}
-.nav-brand{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:12px;white-space:nowrap}
+nav{display:flex;align-items:center;gap:4px;padding:0 20px;height:52px;background:rgba(10,10,16,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.nav-brand{font-size:15px;font-weight:800;background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:12px;text-decoration:none;white-space:nowrap}
 .nav-links{display:flex;gap:2px;flex:1}
 .nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;padding:6px 14px;border-radius:10px;transition:all .18s}
 .nav-links a:hover{color:var(--text);background:rgba(255,255,255,.06)}
 .nav-links a.active{color:var(--hot);background:rgba(141,252,255,.08);border:1px solid rgba(141,252,255,.18)}
 @media(max-width:600px){.nav-brand{font-size:13px} .nav-links a{padding:6px 10px;font-size:12px}}
 
-main{flex:1;overflow:hidden;display:grid;grid-template-columns:310px 1fr;gap:0}
-aside{border-right:1px solid var(--line);background:rgba(12,12,18,.86);padding:18px;overflow:auto}
-section{display:grid;grid-template-rows:auto 1fr auto;height:100%}
-h1{font-size:25px;margin:0 0 8px} h2{font-size:14px;color:var(--muted);font-weight:600;margin:22px 0 8px}
-p{color:var(--muted);margin:0;line-height:1.45;font-size:14px}
-textarea,input{width:100%;background:#090912;color:var(--text);border:1px solid var(--line);border-radius:14px;padding:12px;font:14px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;outline:none}
-textarea:focus,input:focus{border-color:var(--hot);box-shadow:0 0 0 3px rgba(141,252,255,.08)}
-#context{height:250px;resize:vertical}
-.top{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:end;gap:16px}
-.badge{border:1px solid var(--line);border-radius:999px;padding:8px 11px;color:var(--hot);font-size:12px;background:#0b0b12;white-space:nowrap}
-.chat{padding:24px;overflow:auto;display:flex;flex-direction:column;gap:14px}
-.msg{max-width:850px;border:1px solid var(--line);background:rgba(16,16,24,.75);border-radius:18px;padding:14px 16px;white-space:pre-wrap;line-height:1.45}
-.user{align-self:flex-end;background:rgba(141,252,255,.08);border-color:rgba(141,252,255,.25)}
-.ai{align-self:flex-start}
-.composer{border-top:1px solid var(--line);padding:16px 24px;background:rgba(10,10,15,.88);display:grid;grid-template-columns:1fr auto;gap:12px}
-#input{height:54px;resize:none}
-button{border:0;border-radius:14px;background:linear-gradient(135deg,var(--hot),var(--violet));color:#050508;font-weight:900;padding:0 18px;cursor:pointer}
-button:disabled{opacity:.55;cursor:not-allowed}
-.small{font-size:12px;color:var(--muted);margin-top:10px}
-.actions{display:grid;gap:8px;margin-top:14px}
-.secondary{background:#151520;color:var(--text);border:1px solid var(--line);padding:10px}
-.err{color:var(--bad)}
-@media(max-width:850px){main{grid-template-columns:1fr} aside{display:none}}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* HERO */
+.hero{padding:90px 0 70px;text-align:left;position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(141,252,255,.06);border:1px solid rgba(141,252,255,.2);border-radius:999px;font-size:12px;color:var(--hot);font-family:ui-monospace,monospace;margin-bottom:24px}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--hot);box-shadow:0 0 8px var(--hot);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1.hero-title{font-size:clamp(38px,5.5vw,68px);line-height:1.05;letter-spacing:-.025em;font-weight:700;margin:0 0 22px;max-width:18ch}
+.hero-title .accent{background:linear-gradient(135deg,var(--hot),var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.lede{font-size:18px;color:var(--muted);max-width:60ch;margin:0 0 36px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.btn-primary{background:linear-gradient(135deg,var(--hot),var(--violet));color:#050508;font-weight:800;padding:13px 24px;border:0;border-radius:14px;text-decoration:none;font-size:14px;letter-spacing:.01em;transition:transform .15s,box-shadow .15s;display:inline-block}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(141,252,255,.2)}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line);padding:13px 22px;border-radius:14px;text-decoration:none;font-size:14px;transition:all .15s;display:inline-block}
+.btn-ghost:hover{border-color:var(--hot);color:var(--hot)}
+
+/* FEATURES */
+section.block{padding:60px 0;border-top:1px solid var(--line)}
+.section-label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px;font-family:ui-monospace,monospace}
+.section-title{font-size:clamp(26px,3vw,38px);letter-spacing:-.02em;font-weight:700;margin:0 0 36px;max-width:20ch}
+
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+.feature{background:rgba(16,16,24,.6);border:1px solid var(--line);border-radius:18px;padding:24px;transition:border-color .15s,transform .15s}
+.feature:hover{border-color:var(--hot);transform:translateY(-2px)}
+.feature .num{font-family:ui-monospace,monospace;font-size:12px;color:var(--hot);margin-bottom:14px;letter-spacing:.08em}
+.feature h3{font-size:18px;margin:0 0 8px;letter-spacing:-.01em}
+.feature p{font-size:14px;color:var(--muted);margin:0}
+
+/* HOW IT WORKS */
+.steps-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.step-card{background:#0d0d14;border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
+.step-card .badge{display:inline-block;font-family:ui-monospace,monospace;font-size:11px;color:var(--hot);background:rgba(141,252,255,.1);padding:3px 9px;border-radius:6px;margin-bottom:10px;letter-spacing:.08em}
+.step-card h4{font-size:15px;margin:0 0 6px;font-weight:600}
+.step-card p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+
+/* TEMPLATES SHOWCASE */
+.tpls{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.tpl-card{background:rgba(16,16,24,.6);border:1px solid var(--line);border-radius:14px;padding:18px}
+.tpl-card h4{font-size:14px;margin:0 0 10px;color:var(--hot);font-family:ui-monospace,monospace;letter-spacing:.04em}
+.chain{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted)}
+.chain .seg{padding:3px 8px;background:#151520;border:1px solid var(--line);border-radius:6px;color:var(--text)}
+.chain .arrow{color:var(--muted);font-family:ui-monospace,monospace}
+
+/* CTA STRIP */
+.cta-strip{background:linear-gradient(180deg,rgba(141,252,255,.04),rgba(185,167,255,.02));border:1px solid var(--line);border-radius:20px;padding:40px;text-align:center;margin:30px 0}
+.cta-strip h3{font-size:clamp(22px,2.5vw,30px);margin:0 0 10px;letter-spacing:-.02em}
+.cta-strip p{font-size:15px;color:var(--muted);margin:0 0 24px;max-width:50ch;margin-left:auto;margin-right:auto}
+
+/* FOOTER */
+footer{padding:36px 24px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:13px;font-family:ui-monospace,monospace}
+footer a{color:var(--hot);text-decoration:none}
+footer a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
 
 <nav>
-  <span class="nav-brand">✦ AI World</span>
+  <a href="index.html" class="nav-brand">✦ AI Workflow Studio</a>
   <div class="nav-links">
-    <a href="index.html" class="active">Chat</a>
-    <a href="art.html">Art Gallery</a>
+    <a href="index.html" class="active">Home</a>
+    <a href="workflow.html">Workflows</a>
+    <a href="chat.html">Chat</a>
+    <a href="art.html">Art</a>
     <a href="games.html">Games</a>
     <a href="portfolio.html">Portfolio</a>
   </div>
 </nav>
 
-<main>
-  <aside>
-    <h1>AI Builder Chat</h1>
-    <p>Main control room. Chat first. World/page generation comes later as tools.</p>
+<div class="wrap">
 
-    <h2>Project Context</h2>
-    <textarea id="context">This is the main builder area for a network of connected pages, tools, worlds, and systems. The AI should help design and manage the project through conversation. Do not automatically generate a world unless asked. Prefer small clear next steps and deployable structure.</textarea>
-    <div class="small">This context is sent with every message.</div>
-
-    <h2>Quick Prompts</h2>
-    <div class="actions">
-      <button class="secondary" onclick="quick('Help me design the next version of this builder page.')">Design builder page</button>
-      <button class="secondary" onclick="quick('What should the first database schema be for saving pages and worlds?')">Plan database</button>
-      <button class="secondary" onclick="quick('Create a clean route structure for this app.')">Route structure</button>
-      <button class="secondary" onclick="clearChat()">Clear chat</button>
+  <!-- HERO -->
+  <header class="hero">
+    <span class="eyebrow">v0.3 · live</span>
+    <h1 class="hero-title">Chain AI prompts into <span class="accent">repeatable workflows.</span></h1>
+    <p class="lede">
+      A builder's control room for designing AI-assisted systems. Compose multi-step pipelines, run them on any input, and save them as reusable templates. Built by an AI-native engineer for teams who want to move faster.
+    </p>
+    <div class="cta-row">
+      <a href="workflow.html" class="btn-primary">▶ Try the Workflow Builder</a>
+      <a href="chat.html" class="btn-ghost">Open the Chat →</a>
     </div>
-  </aside>
+  </header>
 
-  <section>
-    <div class="top">
-      <div>
-        <h1>Main AI Control Room</h1>
-        <p>Talk to the builder. It helps create the system that later creates everything else.</p>
+  <!-- FEATURES -->
+  <section class="block">
+    <div class="section-label">What's inside</div>
+    <h2 class="section-title">Two surfaces, one goal: ship faster.</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="num">01</div>
+        <h3>Workflow Builder</h3>
+        <p>Define a chain of prompts. Each step receives the previous output. Run it once or save it as a reusable template. The killer feature.</p>
       </div>
-      <div class="badge">v0.2 / chat mode / no database yet</div>
-    </div>
-
-    <div id="chat" class="chat">
-      <div class="msg ai">I’m online. Tell me what you want to build, change, or plan next.</div>
-    </div>
-
-    <div class="composer">
-      <textarea id="input" placeholder="Ask the builder AI..."></textarea>
-      <button id="send" onclick="send()">Send</button>
+      <div class="feature">
+        <div class="num">02</div>
+        <h3>Builder Chat</h3>
+        <p>Free-form conversational AI with persistent project context. Use it for ideation, design discussions, and one-off explorations.</p>
+      </div>
+      <div class="feature">
+        <div class="num">03</div>
+        <h3>Built to extend</h3>
+        <p>Open Express + vanilla JS. No frameworks, no lock-in. Bring your own OpenAI key, deploy on Railway, fork for your team.</p>
+      </div>
     </div>
   </section>
-</main>
 
-<script>
-let messages = [];
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const sendBtn = document.getElementById("send");
+  <!-- HOW IT WORKS -->
+  <section class="block">
+    <div class="section-label">How a workflow runs</div>
+    <h2 class="section-title">Four moves. Repeatable every time.</h2>
+    <div class="steps-row">
+      <div class="step-card">
+        <span class="badge">01</span>
+        <h4>Define input</h4>
+        <p>The topic, idea, or content the workflow runs on.</p>
+      </div>
+      <div class="step-card">
+        <span class="badge">02</span>
+        <h4>Compose steps</h4>
+        <p>Each step is an instruction. Sequential, focused, specific.</p>
+      </div>
+      <div class="step-card">
+        <span class="badge">03</span>
+        <h4>Run</h4>
+        <p>Outputs chain forward. Watch each step land.</p>
+      </div>
+      <div class="step-card">
+        <span class="badge">04</span>
+        <h4>Save</h4>
+        <p>Workflows persist in your browser. Re-run with new inputs anytime.</p>
+      </div>
+    </div>
+  </section>
 
-function add(role, text){
-  const div=document.createElement("div");
-  div.className="msg "+(role==="user"?"user":"ai");
-  div.textContent=text;
-  chat.appendChild(div);
-  chat.scrollTop=chat.scrollHeight;
-}
+  <!-- TEMPLATES -->
+  <section class="block">
+    <div class="section-label">Pre-loaded templates</div>
+    <h2 class="section-title">Start with a recipe. Customize from there.</h2>
+    <div class="tpls">
+      <div class="tpl-card">
+        <h4>// Blog Post Pipeline</h4>
+        <div class="chain">
+          <span class="seg">Research</span><span class="arrow">→</span>
+          <span class="seg">Outline</span><span class="arrow">→</span>
+          <span class="seg">Draft</span><span class="arrow">→</span>
+          <span class="seg">Polish</span>
+        </div>
+      </div>
+      <div class="tpl-card">
+        <h4>// Idea → Spec</h4>
+        <div class="chain">
+          <span class="seg">Clarify</span><span class="arrow">→</span>
+          <span class="seg">Features</span><span class="arrow">→</span>
+          <span class="seg">Tech stack</span><span class="arrow">→</span>
+          <span class="seg">First task</span>
+        </div>
+      </div>
+      <div class="tpl-card">
+        <h4>// Code Review</h4>
+        <div class="chain">
+          <span class="seg">Summary</span><span class="arrow">→</span>
+          <span class="seg">Issues</span><span class="arrow">→</span>
+          <span class="seg">Refactor</span>
+        </div>
+      </div>
+      <div class="tpl-card">
+        <h4>// Cold Outreach</h4>
+        <div class="chain">
+          <span class="seg">Angle</span><span class="arrow">→</span>
+          <span class="seg">Subjects</span><span class="arrow">→</span>
+          <span class="seg">Body</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-function quick(text){ input.value=text; input.focus(); }
+  <!-- CTA STRIP -->
+  <section class="block">
+    <div class="cta-strip">
+      <h3>Build your first workflow in 60 seconds.</h3>
+      <p>Pick a template, run it, then swap in your own input. That's the whole thing.</p>
+      <a href="workflow.html" class="btn-primary">▶ Open the builder</a>
+    </div>
+  </section>
 
-function clearChat(){
-  messages=[];
-  chat.innerHTML='<div class="msg ai">Chat cleared. The project context still remains.</div>';
-}
+</div>
 
-async function send(){
-  const text=input.value.trim();
-  if(!text) return;
-  input.value="";
-  add("user",text);
-  messages.push({role:"user",content:text});
-  sendBtn.disabled=true;
+<footer>
+  Built by <a href="https://github.com/Kawhooped" target="_blank">Danny Aguiar</a> · AI Workflow Designer · Miami, FL
+</footer>
 
-  const thinking=document.createElement("div");
-  thinking.className="msg ai";
-  thinking.textContent="Thinking...";
-  chat.appendChild(thinking);
-  chat.scrollTop=chat.scrollHeight;
-
-  try{
-    const r=await fetch("/api/chat",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({context:document.getElementById("context").value,messages})
-    });
-    const data=await r.json();
-    if(!r.ok) throw new Error(JSON.stringify(data,null,2));
-    thinking.textContent=data.reply;
-    messages.push({role:"assistant",content:data.reply});
-  }catch(err){
-    thinking.innerHTML='<span class="err">Error:</span> '+err.message;
-  }finally{
-    sendBtn.disabled=false;
-    input.focus();
-  }
-}
-
-input.addEventListener("keydown",e=>{
-  if(e.key==="Enter" && !e.shiftKey){e.preventDefault();send();}
-});
-</script>
 </body>
 </html>
