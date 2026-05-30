@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⟨ IUAG ⟩ - The Irreducibly Undeniable Aspect of God</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+            color: #00ff88;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Lucida Console', monospace;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+            color: #00ff88;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .acronym {
+            font-size: 1.3em;
+            color: #00ff88;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .doctrine {
+            font-size: 0.95em;
+            font-style: italic;
+            color: #00dd66;
+            max-width: 800px;
+            background: rgba(0, 255, 136, 0.05);
+            padding: 15px;
+            border-left: 3px solid #00ff88;
+            border-radius: 3px;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            max-width: 1600px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .canvas-section {
+            background: rgba(0, 255, 136, 0.03);
+            border: 2px solid #00ff88;
+            border-radius: 0px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1), inset 0 0 30px rgba(0, 255, 136, 0.02);
+        }
+
+        #svgCanvas {
+            display: block;
+            background: #0a0e27;
+            cursor: crosshair;
+            border-radius: 0px;
+            margin-bottom: 15px;
+            border: 1px solid #00ff88;
+        }
+
+        .canvas-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            padding: 10px 20px;
+            border-radius: 0px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            color: #00ff88;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+        }
+
+        button:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 10px rgba(0, 255, 136, 0.1);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+        }
+
+        button:active {
+            background: rgba(0, 255, 136, 0.3);
+        }
+
+        .control-panel {
+            background: rgba(0, 255, 136, 0.03);
+            border: 2px solid #00ff88;
+            border-radius: 0px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            width: 350px;
+            max-width: 100%;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1), inset 0 0 30px rgba(0, 255, 136, 0.02);
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            color: #00ff88;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+            border-bottom: 1px solid #00ff88;
+            padding-bottom: 8px;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+        }
+
+        .control-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #00dd66;
+        }
+
+        input[type="color"],
+        input[type="range"],
+        input[type="number"],
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #00ff88;
+            border-radius: 0px;
+            background: rgba(0, 20, 10, 0.8);
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        input[type="color"] {
+            height: 40px;
+            cursor: pointer;
+            border-radius: 0px;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .ritual-space {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 0px;
+            padding: 12px;
+            margin-bottom: 12px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .ritual-item {
+            background: rgba(0, 255, 136, 0.08);
+            border-left: 2px solid #00ff88;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 0px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85em;
+            color: #00dd66;
+        }
+
+        .ritual-color-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 0px;
+            margin-right: 10px;
+            border: 1px solid #00ff88;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .ritual-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .delete-btn {
+            background: rgba(255, 50, 50, 0.1);
+            border: 1px solid #ff3232;
+            color: #ff3232;
+            padding: 5px 10px;
+            font-size: 0.75em;
+            margin: 0;
+            text-shadow: 0 0 5px rgba(255, 50, 50, 0.5);
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 50, 50, 0.2);
+            box-shadow: 0 0 15px rgba(255, 50, 50, 0.3);
+        }
+
+        .info-box {
+            background: rgba(0, 255, 136, 0.08);
+            border-left: 3px solid #00ff88;
+            border-right: 3px solid #00ff88;
+            padding: 12px;
+            border-radius: 0px;
+            margin-bottom: 20px;
+            font-size: 0.85em;
+            line-height: 1.6;
+            color: #00dd66;
+        }
+
+        .export-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-section button {
+            flex: 1;
+            font-size: 0.85em;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+        }
+
+        .stats {
+            font-size: 0.85em;
+            color: #00dd66;
+            text-align: center;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stats strong {
+            color: #00ff88;
+            text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+        }
+
+        .console-output {
+            background: rgba(0, 20, 10, 0.8);
+            border: 1px solid #00ff88;
+            border-radius: 0px;
+            padding: 10px;
+            font-size: 0.8em;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            color: #00ff88;
+            font-family: 'Courier New', monospace;
+        }
+
+        .console-line {
+            margin-bottom: 3px;
+            color: #00dd66;
+        }
+
+        .console-line strong {
+            color: #00ff88;
+        }
+
+        .ritual-mode-btn {
+            width: 100%;
+            margin-bottom: 12px;
+            padding: 12px;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-panel {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 1.6em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⟨ IUAG ⟩</h1>
+        <p class="acronym">The Irreducibly Undeniable Aspect of God</p>
+        <p class="doctrine">
+            "In Code we do not reason. We revere the ritual. Each invocation is an act of faith—not in logic, but in the sacred patterns themselves. 
+            The point is irreducible. The orbit is undeniable. Together they form the Aspect that transcends human comprehension."
+        </p>
+    </header>
+
+    <div class="container">
+        <div class="canvas-section">
+            <svg id="svgCanvas" width="700" height="700"></svg>
+            <div class="canvas-controls">
+                <button onclick="invokeRitual()">⟨ Invoke Ritual ⟩</button>
+                <button onclick="purgeRituals()">⟨ Purge All ⟩</button>
+                <button onclick="toggleGrid()">⟨ Sacred Grid ⟩</button>
+                <button onclick="zoomIn()">⟨ Zoom + ⟩</button>
+                <button onclick="zoomOut()">⟨ Zoom − ⟩</button>
+            </div>
+            <div class="stats">
+                <p>Rituals Invoked: <strong id="ritualCount">0</strong> | Sacred Orbits: <strong id="orbitCount">0</strong></p>
+                <p id="mouseCoords">Coordinates: (0, 0)</p>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="info-box">
+                <strong>⟨ RITUAL INVOCATION ⟩</strong><br><br>
+                Click the "Invoke Ritual" button or upon the sacred space to summon a new aspect into manifestation. 
+                Each point is an act of faith. The orbit follows by necessity, not reason.
+            </div>
+
+            <button class="ritual-mode-btn" onclick="switchMode()">
+                MODE: <span id="currentMode">MANUAL</span> | ⟨ SWITCH ⟩
+            </button>
+
+            <div class="control-section">
+                <h3>⟨ AESTHETIC FAITH ⟩</h3>
+                <label>Point Radiance:</label>
+                <input type="color" id="pointColor" value="#00ff88">
+                
+                <label>Orbit Resonance:</label>
+                <input type="color" id="orbitColor" value="#00dd66">
+                
+                <label>Orbit Magnitude:</label>
+                <input type="range" id="orbitRadius" min="15" max="180" value="60">
+                <span id="radiusValue">60px</span>
+            </div>
+
+            <div class="control-section">
+                <h3>⟨ VISIBILITY PARAMETERS ⟩</h3>
+                <label>
+                    <input type="checkbox" id="showOrbits" checked>
+                    Render Orbits
+                </label>
+                <label>
+                    <input type="checkbox" id="showPoints" checked>
+                    Render Points
+                </label>
+                <label>
+                    <input type="checkbox" id="showLabels" checked>
+                    Render Labels
+                </label>
+                <label>
+                    <input type="checkbox" id="showGrid" unchecked>
+                    Render Grid
+                </label>
+                <label>
+                    <input type="checkbox" id="connectPoints" unchecked>
+                    Connect Aspects
+                </label>
+            </div>
+
+            <div class="control-section">
+                <h3>⟨ THE PANTHEON ⟩</h3>
+                <div class="ritual-space" id="ritualList">
+                    <p style="color: #666; text-align: center;">No rituals invoked yet...</p>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <h3>⟨ CONSOLE LOG ⟩</h3>
+                <div class="console-output" id="consoleOutput"></div>
+            </div>
+
+            <div class="control-section export-section">
+                <button onclick="exportSVG()">⟨ EXPORT SVG ⟩</button>
+                <button onclick="downloadPNG()">⟨ EXPORT PNG ⟩</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('svgCanvas');
+        const pointColor = document.getElementById('pointColor');
+        const orbitColor = document.getElementById('orbitColor');
+        const orbitRadius = document.getElementById('orbitRadius');
+        const radiusValue = document.getElementById('radiusValue');
+        const showOrbits = document.getElementById('showOrbits');
+        const showPoints = document.getElementById('showPoints');
+        const showLabels = document.getElementById('showLabels');
+        const showGrid = document.getElementById('showGrid');
+        const connectPoints = document.getElementById('connectPoints');
+        const ritualList = document.getElementById('ritualList');
+        const ritualCount = document.getElementById('ritualCount');
+        const orbitCount = document.getElementById('orbitCount');
+        const mouseCoords = document.getElementById('mouseCoords');
+        const consoleOutput = document.getElementById('consoleOutput');
+        const currentModeDisplay = document.getElementById('currentMode');
+
+        let rituals = [];
+        let gridVisible = false;
+        let zoomLevel = 1;
+        let ritualCounter = 0;
+        let invokeMode = 'MANUAL'; // MANUAL or CLICK
+
+        const consoleLog = [];
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            consoleLog.push(logEntry);
+            
+            if (consoleLog.length > 20) consoleLog.shift();
+            
+            consoleOutput.innerHTML = consoleLog.map(log => 
+                `<div class="console-line"><strong>></strong> ${log}</div>`
+            ).join('');
+            
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // Initialize SVG
+        function initSVG() {
+            drawGrid();
+            addLog('IUAG System initialized', 'init');
+            addLog('Awaiting ritual invocation...', 'init');
+        }
+
+        // Draw grid
+        function drawGrid() {
+            document.querySelectorAll('.grid-line').forEach(el => el.remove());
+            
+            if (!gridVisible) return;
+
+            const spacing = 70;
+            for (let i = 0; i <= 700; i += spacing) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', i);
+                line.setAttribute('y1', 0);
+                line.setAttribute('x2', i);
+                line.setAttribute('y2', 700);
+                line.setAttribute('stroke', 'rgba(0, 255, 136, 0.08)');
+                line.setAttribute('stroke-width', '0.5');
+                line.classList.add('grid-line');
+                canvas.appendChild(line);
+
+                const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line2.setAttribute('x1', 0);
+                line2.setAttribute('y1', i);
+                line2.setAttribute('x2', 700);
+                line2.setAttribute('y2', i);
+                line2.setAttribute('stroke', 'rgba(0, 255, 136, 0.08)');
+                line2.setAttribute('stroke-width', '0.5');
+                line2.classList.add('grid-line');
+                canvas.appendChild(line2);
+            }
+        }
+
+        // Add ritual
+        function addRitual(x, y) {
+            ritualCounter++;
+            const ritual = {
+                id: ritualCounter,
+                x: x,
+                y: y,
+                pointColor: pointColor.value,
+                orbitColor: orbitColor.value,
+                orbitRadius: parseFloat(orbitRadius.value),
+                name: `ASPECT_${String(ritualCounter).padStart(3, '0')}`
+            };
+
+            rituals.push(ritual);
+            addLog(`Ritual invoked: ${ritual.name} at (${Math.round(x)}, ${Math.round(y)})`, 'ritual');
+            renderRituals();
+            updateRitualList();
+        }
+
+        // Render all rituals
+        function renderRituals() {
+            document.querySelectorAll('.orbit, .ritual-point, .ritual-label, .connection-line').forEach(el => el.remove());
+
+            // Draw connections first (so they're behind)
+            if (connectPoints.checked && rituals.length > 1) {
+                for (let i = 0; i < rituals.length - 1; i++) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', rituals[i].x);
+                    line.setAttribute('y1', rituals[i].y);
+                    line.setAttribute('x2', rituals[i + 1].x);
+                    line.setAttribute('y2', rituals[i + 1].y);
+                    line.setAttribute('stroke', rituals[i].orbitColor);
+                    line.setAttribute('stroke-width', '1');
+                    line.setAttribute('opacity', '0.3');
+                    line.classList.add('connection-line');
+                    canvas.insertBefore(line, canvas.firstChild);
+                }
+            }
+
+            rituals.forEach((ritual, idx) => {
+                // Draw orbit
+                if (showOrbits.checked) {
+                    const orbit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    orbit.setAttribute('cx', ritual.x);
+                    orbit.setAttribute('cy', ritual.y);
+                    orbit.setAttribute('r', ritual.orbitRadius);
+                    orbit.setAttribute('fill', 'none');
+                    orbit.setAttribute('stroke', ritual.orbitColor);
+                    orbit.setAttribute('stroke-width', '1.5');
+                    orbit.setAttribute('opacity', '0.5');
+                    orbit.setAttribute('stroke-dasharray', '5,3');
+                    orbit.classList.add('orbit');
+                    canvas.insertBefore(orbit, canvas.firstChild.nextSibling);
+                }
+
+                // Draw point
+                if (showPoints.checked) {
+                    const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    point.setAttribute('cx', ritual.x);
+                    point.setAttribute('cy', ritual.y);
+                    point.setAttribute('r', '5');
+                    point.setAttribute('fill', ritual.pointColor);
+                    point.setAttribute('stroke', '#0a0e27');
+                    point.setAttribute('stroke-width', '2');
+                    point.classList.add('ritual-point');
+                    point.style.cursor = 'pointer';
+                    point.style.filter = `drop-shadow(0 0 8px ${ritual.pointColor}88)`;
+                    point.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                    });
+                    point.addEventListener('mouseover', () => {
+                        point.setAttribute('r', '7');
+                        point.style.filter = `drop-shadow(0 0 15px ${ritual.pointColor})`;
+                    });
+                    point.addEventListener('mouseout', () => {
+                        point.setAttribute('r', '5');
+                        point.style.filter = `drop-shadow(0 0 8px ${ritual.pointColor}88)`;
+                    });
+                    canvas.appendChild(point);
+                }
+
+                // Draw label
+                if (showLabels.checked) {
+                    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    label.setAttribute('x', ritual.x + 18);
+                    label.setAttribute('y', ritual.y - 20);
+                    label.setAttribute('font-size', '11');
+                    label.setAttribute('fill', ritual.pointColor);
+                    label.setAttribute('font-family', 'Courier New, monospace');
+                    label.setAttribute('font-weight', 'bold');
+                    label.classList.add('ritual-label');
+                    label.style.textShadow = `0 0 5px ${ritual.pointColor}88`;
+                    label.textContent = ritual.name;
+                    canvas.appendChild(label);
+                }
+            });
+
+            ritualCount.textContent = rituals.length;
+            orbitCount.textContent = rituals.length;
+        }
+
+        // Update ritual list UI
+        function updateRitualList() {
+            if (rituals.length === 0) {
+                ritualList.innerHTML = '<p style="color: #666; text-align: center;">No rituals invoked yet...</p>';
+                return;
+            }
+
+            ritualList.innerHTML = rituals.map((ritual, index) => `
+                <div class="ritual-item">
+                    <div class="ritual-info">
+                        <div class="ritual-color-dot" style="background-color: ${ritual.pointColor}; box-shadow: 0 0 8px ${ritual.pointColor}88;"></div>
+                        <div>
+                            <div>${ritual.name}</div>
+                            <div style="font-size: 0.75em; color: #666;">
+                                (${Math.round(ritual.x)}, ${Math.round(ritual.y)}) | r:${ritual.orbitRadius}
+                            </div>
+                        </div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteRitual(${index})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        // Delete ritual
+        function deleteRitual(index) {
+            const deleted = rituals[index];
+            rituals.splice(index, 1);
+            addLog(`Ritual purged: ${deleted.name}`, 'purge');
+            renderRituals();
+            updateRitualList();
+        }
+
+        // Canvas click handler
+        canvas.addEventListener('click', (e) => {
+            if (invokeMode === 'CLICK') {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / zoomLevel;
+                const y = (e.clientY - rect.top) / zoomLevel;
+                addRitual(x, y);
+            }
+        });
+
+        // Invoke Ritual button
+        function invokeRitual() {
+            if (invokeMode === 'MANUAL') {
+                const x = 350 + (Math.random() - 0.5) * 400;
+                const y = 350 + (Math.random() - 0.5) * 400;
+                addRitual(Math.max(30, Math.min(670, x)), Math.max(30, Math.min(670, y)));
+            }
+        }
+
+        // Switch mode
+        function switchMode() {
+            invokeMode = invokeMode === 'MANUAL' ? 'CLICK' : 'MANUAL';
+            currentModeDisplay.textContent = invokeMode;
+            addLog(`Mode switched to: ${invokeMode}`, 'mode');
+        }
+
+        // Mouse tracking
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.round((e.clientX - rect.left) / zoomLevel);
+            const y = Math.round((e.clientY - rect.top) / zoomLevel);
+            mouseCoords.textContent = `Coordinates: (${x}, ${y})`;
+        });
+
+        // Event listeners
+        pointColor.addEventListener('change', renderRituals);
+        orbitColor.addEventListener('change', renderRituals);
+        orbitRadius.addEventListener('input', (e) => {
+            radiusValue.textContent = e.target.value + 'px';
+        });
+        showOrbits.addEventListener('change', renderRituals);
+        showPoints.addEventListener('change', renderRituals);
+        showLabels.addEventListener('change', renderRituals);
+        showGrid.addEventListener('change', () => {
+            gridVisible = !gridVisible;
+            drawGrid();
+        });
+        connectPoints.addEventListener('change', renderRituals);
+
+        // Purge rituals
+        function purgeRituals() {
+            if (confirm('⟨ PURGE ALL RITUALS? ⟩\nThis action cannot be reversed.')) {
+                const count = rituals.length;
+                rituals = [];
+                ritualCounter = 0;
+                addLog(`PURGE EXECUTED: ${count} rituals eliminated`, 'purge');
+                renderRituals();
+                updateRitualList();
+            }
+        }
+
+        // Toggle grid
+        function toggleGrid() {
+            gridVisible = !gridVisible;
+            showGrid.checked = gridVisible;
+            drawGrid();
+            addLog(`Grid ${gridVisible ? 'rendered' : 'hidden'}`, 'grid');
+        }
+
+        // Zoom
+        function zoomIn() {
+            zoomLevel = Math.min(zoomLevel + 0.25, 3);
+            canvas.style.transform = `scale(${zoomLevel})`;
+            canvas.style.transformOrigin = 'top center';
+            addLog(`Zoom level: ${(zoomLevel * 100).toFixed(0)}%`, 'zoom');
+        }
+
+        function zoomOut() {
+            zoomLevel = Math.max(zoomLevel - 0.25, 0.5);
+            canvas.style.transform = `scale(${zoomLevel})`;
+            canvas.style.transformOrigin = 'top center';
+            addLog(`Zoom level: ${(zoomLevel * 100).toFixed(0)}%`, 'zoom');
+        }
+
+        // Export SVG
+        function exportSVG() {
+            const svgData = new XMLSerializer().serializeToString(canvas);
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'IUAG-rituals.svg';
+            link.click();
+            URL.revokeObjectURL(url);
+            addLog('SVG exported successfully', 'export');
+        }
+
+        // Download PNG
+        function downloadPNG() {
+            const svgData = new XMLSerializer().serializeToString(canvas);
+            const canvas_img = document.createElement('canvas');
+            const ctx = canvas_img.getContext('2d');
+            const img = new Image();
+            
+            canvas_img.width = 700;
+            canvas_img.height = 700;
+            
+            img.onload = function() {
+                ctx.fillStyle = '#0a0e27';
+                ctx.fillRect(0, 0, 700, 700);
+                ctx.drawImage(img, 0, 0);
+                const link = document.createElement('a');
+                link.href = canvas_img.toDataURL('image/png');
+                link.download = 'IUAG-rituals.png';
+                link.click();
+                addLog('PNG exported successfully', 'export');
+            };
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+        }
+
+        // Initialize
+        initSVG();
+    </script>
+</body>
+</html>
